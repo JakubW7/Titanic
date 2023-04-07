@@ -1,29 +1,19 @@
 import numpy as np
 import pandas as pd
-from sklearn import preprocessing
+import xgboost as xgb
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, KFold
+from sklearn.model_selection import GridSearchCV, cross_val_score, KFold, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-import xgboost as xgb
+import Preprocessing
 
-# Importing and preprocessing data
-data = pd.read_csv('titanic/train.csv')
-X = data.drop(['Cabin', 'Ticket', 'Name', 'Age', 'PassengerId'], axis=1)
-X = X.dropna()
-data_dummies = pd.get_dummies(X[['Sex', 'Embarked']], drop_first=True)
-X = pd.concat([X, data_dummies], axis=1)
-X = X.drop(['Sex', 'Embarked'], axis=1)
-y = X['Survived']
-X = X.drop(['Survived'], axis=1)
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
-
-# Scaling both sets
-scaler= preprocessing.StandardScaler()
-X_train= scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
+# Insert data from preprocessing
+file = pd.read_csv('titanic/train.csv')
+data, y = Preprocessing.proces_data(file)
+X_train, X_test, y_train, y_test = train_test_split(data, y, random_state=0)
+X_train, X_test = Preprocessing.transform_data(X_train, X_test)
 
 # Instantiate individual classifiers
 lr = LogisticRegression(random_state=0, C=0.01, solver='newton-cg', penalty='l2')
@@ -31,7 +21,7 @@ knn = KNeighborsClassifier(n_neighbors=14)
 dt = DecisionTreeClassifier(random_state=0, max_depth=5, min_samples_leaf=1, criterion='entropy')
 rf = RandomForestClassifier(n_estimators=100, random_state=0, n_jobs=-1, min_samples_leaf=6, max_depth=4,
                             criterion='gini')
-xb = xgb.XGBClassifier(alpha=0.0001,gamma=0.001,learning_rate=0.11,max_depth=2,n_estimators=50)
+xb = xgb.XGBClassifier(alpha=0.0001, gamma=0.001, learning_rate=0.2, max_depth=2, n_estimators=50)
 
 # Define a list called classifier that contains the tuples (classifier_name, classifier)
 classifiers = [('Logistic Regression', lr), ('K Nearest Neighbours', knn,), ('Classification Tree', dt,), ('RF', rf,),

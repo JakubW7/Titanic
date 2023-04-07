@@ -16,7 +16,7 @@ print(data.info())
 print(data.corr())
 
 X_train, X_test, y_train, y_test = train_test_split(data, y, random_state=0)
-X_train, X_test = Preprocessing.transform_data(X_train,X_test)
+X_train, X_test = Preprocessing.transform_data(X_train, X_test)
 model = RandomForestClassifier()
 model.fit(X_train, y_train)
 print(accuracy_score(y_test, model.predict(X_test)))

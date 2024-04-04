@@ -23,7 +23,7 @@ rf = RandomForestClassifier(n_estimators=100, random_state=0, n_jobs=-1, min_sam
                             criterion='gini')
 xb = xgb.XGBClassifier(alpha=0.0001, gamma=0.001, learning_rate=0.2, max_depth=2, n_estimators=50)
 
-# Define a list called classifier that contains the tuples (classifier_name, classifier)
+# Define a list of classifiers
 classifiers = [('Logistic Regression', lr), ('K Nearest Neighbours', knn,), ('Classification Tree', dt,), ('RF', rf,),
                ('XGB', xb)]
 
@@ -38,7 +38,7 @@ param_dic = {'Logistic Regression': {'C': [0.01, 0.1, 1, 10, 100], 'penalty': ['
              'XGB': {'learning_rate': np.arange(0.01, 0.3, 0.1), 'max_depth': np.arange(1, 3, 1), 'n_estimators': [50],
                      'alpha': [0.0001, 0.001, 0.01], 'gamma': [0.001, 0.01, 0.1]}}
 
-# Iterate over the defined list of tuples containing the classifiers
+# Using GridSearch get best params and scores of all classifiers
 for clf_name, clf in classifiers:
     grid = GridSearchCV(estimator=clf,
                         param_grid=param_dic[clf_name], cv=KFold(n_splits=5), scoring='accuracy')
@@ -55,6 +55,6 @@ vc = VotingClassifier(estimators=classifiers)
 vc.fit(X_train, y_train)
 y_pred = vc.predict(X_test)
 y_pred_train = vc.predict(X_train)
-print('Voting Classifier: {}'.format(accuracy_score(y_test, y_pred)))
+print('Voting Classifier test score: {}'.format(accuracy_score(y_test, y_pred)))
 print('Train score ', accuracy_score(y_train, y_pred_train))
-print('Voting clas', np.mean(cross_val_score(vc, X_train, y_train, cv=5)))
+print('Voting classifier cross validaton ', np.mean(cross_val_score(vc, X_train, y_train, cv=5)))

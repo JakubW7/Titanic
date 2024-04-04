@@ -3,19 +3,21 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 
 
-def proces_data(given_data):
+def proces_data(data):
+    """Drop unimportant columns from data, one hot encode particular columns, return features and label"""
     label = 0
-    given_data.drop(['Cabin', 'Name', 'PassengerId', 'Ticket', 'Age'], axis=1, inplace=True)
-    if 'Survived' in given_data.columns:
-        label = given_data['Survived']
-        given_data.drop(['Survived'], axis=1, inplace=True)
-    given_data = pd.concat([pd.get_dummies(given_data[['Embarked', 'Sex']], drop_first=False),
-                            given_data.drop(['Embarked', 'Sex'], axis=1)], axis=1)
-    given_data.drop(['Embarked_Q', 'Embarked_C', 'Sex_male'], axis=1, inplace=True)
-    return given_data, label
+    data.drop(['Cabin', 'Name', 'PassengerId', 'Ticket', 'Age'], axis=1, inplace=True)
+    if 'Survived' in data.columns:
+        label = data['Survived']
+        data.drop(['Survived'], axis=1, inplace=True)
+    data = pd.concat([pd.get_dummies(data[['Embarked', 'Sex']], drop_first=False),
+                            data.drop(['Embarked', 'Sex'], axis=1)], axis=1)
+    data.drop(['Embarked_Q', 'Embarked_C', 'Sex_male'], axis=1, inplace=True)
+    return data, label
 
 
 def transform_data(train_data, test_data):
+    """Scale and impute train and test data without data contamination"""
     scaler = StandardScaler()
     scaler.fit_transform(train_data)
     scaler.transform(test_data)
